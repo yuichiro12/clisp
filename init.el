@@ -10,6 +10,35 @@
 ;; close bracket automatically
 (electric-pair-mode 1)
 
+;; copy current line
+(global-set-key "\C-x\C-y" "\C-a\C-k\C-y")
+
+;; duplicate current line
+(global-set-key "\C-c\C-d" "\C-a\C-k\C-k\C-y\C-y")
+
+;; swap lines seemlessly
+(defun move-line-down ()
+  (interactive)
+  (let ((col (current-column)))
+    (save-excursion
+      (forward-line)
+      (transpose-lines 1))
+    (forward-line)
+    (move-to-column col)))
+
+(defun move-line-up ()
+  (interactive)
+  (let ((col (current-column)))
+    (save-excursion
+      (forward-line)
+      (transpose-lines -1))
+      (forward-line -1)
+    (move-to-column col)))
+
+(global-set-key (kbd "M-n") 'move-line-down)
+(global-set-key (kbd "M-p") 'move-line-up)
+
+
 ;; スクリーンの最大化
 (set-frame-parameter nil 'fullscreen 'maximized)
 
