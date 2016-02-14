@@ -16,7 +16,7 @@
 ;; duplicate current line
 (global-set-key "\C-c\C-d" "\C-a\C-k\C-k\C-y\C-y")
 
-;; swap lines seemlessly
+;; swap lines seamlessly
 (defun move-line-down ()
   (interactive)
   (let ((col (current-column)))
@@ -38,6 +38,14 @@
 (global-set-key (kbd "M-n") 'move-line-down)
 (global-set-key (kbd "M-p") 'move-line-up)
 
+;; 正規表現検索のデフォルト化
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "M-s") 'vr/query-replace)
+
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+(global-set-key (kbd "C-M-%") 'query-replace)
 
 ;; スクリーンの最大化
 (set-frame-parameter nil 'fullscreen 'maximized)
@@ -55,6 +63,7 @@
 ;; 終了時にオートセーブファイルを消す
 (setq delete-auto-save-files t)
 
+
 ;; package
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
@@ -64,6 +73,7 @@
 ;; 日本語の設定（UTF-8）
 (set-language-environment 'Japanese)
 (prefer-coding-system 'utf-8)
+
 
 ;; Auto Complete
 ;;
@@ -78,6 +88,7 @@
 
 ;; auto-complete-mode を起動時に有効にする
 (global-auto-complete-mode t)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -111,6 +122,13 @@
 
 ;; M-/ をredo に設定する。
 (global-set-key (kbd "M-/") 'undo-tree-redo)
+
+
+;; rotate
+(require 'rotate)
+(global-set-key (kbd "C-x w") 'rotate-window)
+(global-set-key (kbd "C-x C-;") 'rotate-layout)
+
 
 ;; helm
 (require 'helm-config)
