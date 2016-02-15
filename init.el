@@ -14,7 +14,7 @@
 (global-set-key "\C-x\C-y" "\C-a\C-k\C-y")
 
 ;; duplicate current line
-(global-set-key "\C-c\C-d" "\C-a\C-k\C-k\C-y\C-y")
+(global-set-key (kbd "C-s-d") "\C-a\C-k\C-k\C-y\C-y\C-p")
 
 ;; swap lines seamlessly
 (defun move-line-down ()
@@ -35,8 +35,8 @@
       (forward-line -1)
     (move-to-column col)))
 
-(global-set-key (kbd "M-n") 'move-line-down)
-(global-set-key (kbd "M-p") 'move-line-up)
+(global-set-key (kbd "C-s-n") 'move-line-down)
+(global-set-key (kbd "C-s-p") 'move-line-up)
 
 ;; 正規表現検索のデフォルト化
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
