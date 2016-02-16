@@ -11,7 +11,7 @@
 (electric-pair-mode 1)
 
 ;; copy current line
-(global-set-key "\C-x\C-y" "\C-a\C-k\C-y")
+(global-set-key "\C-x\C-y" "\C-a\C-k\C-k\C-y")
 
 ;; duplicate current line
 (global-set-key (kbd "C-s-d") "\C-a\C-k\C-k\C-y\C-y\C-p")
@@ -103,7 +103,8 @@
  '(custom-safe-themes
    (quote
     ("0c29db826418061b40564e3351194a3d4a125d182c6ee5178c237a7364f0ff12" "987b709680284a5858d5fe7e4e428463a20dfabe0a6f2a6146b3b8c7c529f08b" "e0d42a58c84161a0744ceab595370cbe290949968ab62273aed6212df0ea94b4" "3cd28471e80be3bd2657ca3f03fbb2884ab669662271794360866ab60b6cb6e6" "3cc2385c39257fed66238921602d8104d8fd6266ad88a006d0a4325336f5ee02" "e9776d12e4ccb722a2a732c6e80423331bcb93f02e089ba2a4b02e85de1cf00e" "72a81c54c97b9e5efcc3ea214382615649ebb539cb4f2fe3a46cd12af72c7607" "58c6711a3b568437bab07a30385d34aacf64156cc5137ea20e799984f4227265" "3d5ef3d7ed58c9ad321f05360ad8a6b24585b9c49abcee67bdcbb0fe583a6950" "b3775ba758e7d31f3bb849e7c9e48ff60929a792961a2d536edec8f68c671ca5" default)))
- '(inhibit-startup-screen t))
+ '(inhibit-startup-screen t)
+ '(slime-backend "~/.emacs.d/slime/swank-loader.lisp"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -133,3 +134,48 @@
 ;; helm
 (require 'helm-config)
 (helm-mode 1)
+
+
+;; slime
+;;
+;; SBCLをデフォルトのCommon Lisp処理系に設定
+(setq inferior-lisp-program "sbcl")
+;; ~/.emacs.d/slimeをload-pathに追加
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/slime"))
+;; SLIMEのロード
+(require 'slime)
+(slime-setup '(slime-repl slime-fancy slime-banner)) 
+
+
+;; twittering-mode
+;;
+(require 'twittering-mode)
+(setq twittering-use-master-password t)
+; パスワード暗号ファイル保存先変更 (デフォはホームディレクトリ)
+(setq twittering-private-info-file "~/.emacs.d/twittering-mode.gpg")
+;; アイコンを表示する
+(setq twittering-icon-mode t)
+;; 300秒ごとに更新
+(setq twittering-timer-interval 300)
+
+
+;; ;;popwin
+;; ;;
+;; (require 'popwin)
+;; (setq display-buffer-function 'popwin:display-buffer)
+;; ;; Apropos
+;; (push '("*slime-apropos*") popwin:special-display-config)
+;; ;; Macroexpand
+;; (push '("*slime-macroexpansion*") popwin:special-display-config)
+;; ;; Help
+;; (push '("*slime-description*") popwin:special-display-config)
+;; ;; Compilation
+;; (push '("*slime-compilation*" :noselect t) popwin:special-display-config)
+;; ;; Cross-reference
+;; (push '("*slime-xref*") popwin:special-display-config)
+;; ;; Debugger
+;; (push '(sldb-mode :stick t) popwin:special-display-config)
+;; ;; REPL
+;; (push '(slime-repl-mode) popwin:special-display-config)
+;; ;; Connections
+;; (push '(slime-connection-list-mode) popwin:special-display-config)
