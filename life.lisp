@@ -14,7 +14,6 @@
   (random-plant 0 0 *width* *height*))
 
 (defstruct animal x y energy dir genes)
-
 (defparameter *animals*
   (list (make-animal :x (ash *width* -1)
 		     :y (ash *height* -1)
