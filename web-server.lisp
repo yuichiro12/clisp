@@ -26,3 +26,48 @@
 		    (and i2 (parse-params (subseq s (1+ i2))))))
 	  ((equal s "") nil)
 	  (t s))))
+
+(defun parse-url (s)
+  (let* ((url (subseq s
+		      (+ 2 (position #\space s))
+		      (position #\space s :from-end t)))
+	 (x (position #\? url)))
+    (if x
+	(cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
+	(cons url '()))))
+
+;; in http, a newline and a space is occasionally inserted to start a newline
+;; when a request-header is too long to see.
+;;
+;; imput example: 
+;;
+;; (get-header (make-string-input-stream "foo: 1
+;;  2345
+;; bar: abc, 123
+;;
+;; "))
+(defun get-header (stream)
+  (let* ((lst (read-all-lines stream))
+	 (h '()))
+    (print lst)
+    (labels ((connect-lines (l lst)
+	       (print l)
+	       (if (car lst)
+		   (if (equal (subseq (car lst) 0 1) " ")
+		       (connect-lines (concatenate 'string l (subseq (car lst) 1)) (cdr lst))
+		       (progn (setf h (nconc h `(,l)))
+			      (print h)
+			      (connect-lines (car lst) (cdr lst))))
+		   (setf h (nconc h `(,l))))))
+      (connect-lines (car lst) (cdr lst))
+      (mapcar #'(lambda (x)
+		  (let ((i (position #\: x)))
+		    (cons (intern (string-upcase (subseq x 0 i)))
+			  (subseq x (+ i 2)))))
+	      h))))
+
+(defun read-all-lines (stream)
+  (let ((s (read-line stream)))
+    (unless (equal (subseq s 0) "")
+      (list* s (read-all-lines stream)))))
+
