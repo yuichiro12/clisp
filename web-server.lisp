@@ -1,3 +1,5 @@
+
+
 (defun http-byte (c1 c2 &optional (default #.(char-code #\space)))
   (let ((code (parse-integer
 	       (coerce (list (code-char c1) (code-char c2)) 'string)
@@ -26,3 +28,70 @@
 		    (and i2 (parse-params (subseq s (1+ i2))))))
 	  ((equal s "") nil)
 	  (t s))))
+
+(defun parse-url (s)
+  (let* ((url (subseq s
+		      (+ 2 (position #\space s))
+		      (position #\space s :from-end t)))
+	 (x (position #\? url)))
+    (if x
+	(cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
+	(cons url '()))))
+
+;; in http, a newline and a space is occasionally inserted to start a newline
+;; when a request-header is too long to see.
+;;
+;; imput example: 
+;;
+;; (get-header (make-string-input-stream "foo: 1
+;;  2345
+;; bar: abc, 123
+;;
+;; "))
+(defun get-header (stream)
+  (let* ((lst (read-all-lines stream))
+	 (h '()))
+    (print lst)
+    (labels ((connect-lines (l lst)
+	       (print l)
+	       (if (car lst)
+		   (if (equal (subseq (car lst) 0 1) " ")
+		       (connect-lines (concatenate 'string l (subseq (car lst) 1)) (cdr lst))
+		       (progn (setf h (nconc h `(,l)))
+			      (print h)
+			      (connect-lines (car lst) (cdr lst))))
+		   (setf h (nconc h `(,l))))))
+      (connect-lines (car lst) (cdr lst))
+      (mapcar #'(lambda (x)
+		  (let ((i (position #\: x)))
+		    (cons (intern (string-upcase (subseq x 0 i)))
+			  (subseq x (+ i 2)))))
+	      h))))
+
+(defun read-all-lines (stream)
+  (let ((s (read-line stream)))
+    (unless (equal (subseq s 0) "")
+      (list* s (read-all-lines stream)))))
+
+<<<<<<< HEAD
+(defun get-content-params (stream header)
+  (let ((length (cdr (assoc 'content-length header))))
+    (when length
+      (let ((content (make-string (parse-integer length))))
+	(read-sequense content stream)
+	(parse-params content)))))
+
+(defun serve (request-handler)
+  (let ((socket (socket-server 8080)))
+    (unwind-protect
+	 (loop (with-open-stream (stream (socket-accept socket))
+		 (let* ((url (parse-url (read-line stream)))
+			(path (car url))
+			(header (get-header stream))
+			(params (append (cdr url)
+					(get-content-params stream header)))
+			(*standard-output* stream))
+		   (funcall request-handler path header params))))
+      (socket-server-close socket))))
+=======
+>>>>>>> f4c9fb2... manage fresh lines in a long http request-header
