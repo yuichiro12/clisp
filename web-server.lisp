@@ -74,6 +74,7 @@
       (list* s (read-all-lines stream)))))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 (defun get-content-params (stream header)
   (let ((length (cdr (assoc 'content-length header))))
     (when length
@@ -95,3 +96,5 @@
       (socket-server-close socket))))
 =======
 >>>>>>> f4c9fb2... manage fresh lines in a long http request-header
+=======
+>>>>>>> f4c9fb22e6fb31503b651b74abee2fde15db4a25
