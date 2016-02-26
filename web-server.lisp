@@ -1,5 +1,3 @@
-
-
 (defun http-byte (c1 c2 &optional (default #.(char-code #\space)))
   (let ((code (parse-integer
 	       (coerce (list (code-char c1) (code-char c2)) 'string)
@@ -80,15 +78,29 @@
 	(read-sequense content stream)
 	(parse-params content)))))
 
+
+(require :sb-bsd-sockets)
+
 (defun serve (request-handler)
-  (let ((socket (socket-server 8080)))
-    (unwind-protect
-	 (loop (with-open-stream (stream (socket-accept socket))
-		 (let* ((url (parse-url (read-line stream)))
-			(path (car url))
-			(header (get-header stream))
-			(params (append (cdr url)
-					(get-content-params stream header)))
-			(*standard-output* stream))
-		   (funcall request-handler path header params))))
-      (socket-server-close socket))))
+  (unwind-protect
+       ((defparameter *sbcl-socket* (make-instance
+				     'sb-bsd-sockets:inet-socket :type :stream :protocol :tcp))
+	(sb-bsd-sockets:socket-bind *sbcl-socket* #(127 0 0 1) 8080)
+	(sb-bsd-sockets:socket-listen *sbcl-socket* 5)
+	(loop (with-open-stream (stream (sb-bsd-sockets:socket-accept *sbcl-socket*))
+		(let* ((url (parse-url (read-line stream)))
+		       (path (car url))
+		       (header (get-header stream))
+		       (params (append (cdr url)
+				       (get-content-params stream header)))
+		       (*standard-output* stream))
+		  (funcall request-handler path header params)))))
+    (sb-bsd-sockets:socket-close *sbcl-socket*)))
+
+(defun hello-request-handler (path header params)
+  (if (equal path "greeting")
+      (let ((name (assoc 'name params)))
+	(if (not name)
+	    (princ "<html><form>What is your name?<input name='name' /></form></html>")
+	    (format t "<html>Nice to meet you, ~a!</html>" (cdr name))))
+      (princ "Sorry, I don't know that page.")))
