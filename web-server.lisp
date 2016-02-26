@@ -82,19 +82,19 @@
 (require :sb-bsd-sockets)
 
 (defun serve (request-handler)
-  (unwind-protect
-       ((defparameter *sbcl-socket* (make-instance
-				     'sb-bsd-sockets:inet-socket :type :stream :protocol :tcp))
-	(sb-bsd-sockets:socket-bind *sbcl-socket* #(127 0 0 1) 8080)
-	(sb-bsd-sockets:socket-listen *sbcl-socket* 5)
-	(loop (with-open-stream (stream (sb-bsd-sockets:socket-accept *sbcl-socket*))
-		(let* ((url (parse-url (read-line stream)))
-		       (path (car url))
-		       (header (get-header stream))
-		       (params (append (cdr url)
-				       (get-content-params stream header)))
-		       (*standard-output* stream))
-		  (funcall request-handler path header params)))))
+  (unwind-protect			
+       (progn (defparameter *sbcl-socket* (make-instance
+					   'sb-bsd-sockets:inet-socket :type :stream :protocol :tcp))
+	      (sb-bsd-sockets:socket-bind *sbcl-socket* #(127 0 0 1) 8000)
+	      (sb-bsd-sockets:socket-listen *sbcl-socket* 5)
+	      (loop (with-open-stream (stream (sb-bsd-sockets:socket-accept *sbcl-socket*))
+		      (let* ((url (parse-url (read-line stream)))
+			     (path (car url))
+			     (header (get-header stream))
+			     (params (append (cdr url)
+					     (get-content-params stream header)))
+			     (*standard-output* stream))
+			(funcall request-handler path header params)))))
     (sb-bsd-sockets:socket-close *sbcl-socket*)))
 
 (defun hello-request-handler (path header params)

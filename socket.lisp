@@ -13,5 +13,5 @@
 ;; receive
 ;; (sb-bsd-sockets:socket-receive *client* buffer length)
 
-;;close
+;; close
 ;; (sb-bsd-sockets:socket-close *sbcl-socket*)
