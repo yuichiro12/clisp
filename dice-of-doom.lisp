@@ -1,6 +1,6 @@
 (defparameter *num-players* 2)
 (defparameter *max-dice* 3)
-(defparameter *board-size* 2)
+(defparameter *board-size* 3)
 (defparameter *board-hexnum* (* *board-size* *board-size*))
 
 (defun board-array (lst)
@@ -98,17 +98,20 @@
 				((eq pos dst) (list player (1- dice)))
 				(t hex)))))
 
+;; Tail call optimization
 (defun add-new-dice (board player spare-dice)
-  (labels ((f (lst n)
-	     (cond ((null lst) nil)
-		   ((zerop n) lst)
+  (labels ((f (lst n acc)
+	     (cond ((zerop n) (append (reverse acc) lst))
+		   ((null lst) (reverse acc))
 		   (t (let ((cur-player (caar lst))
 			    (cur-dice (cadar lst)))
-			(if (and (eq cur-player player) (< cur-dice *max-dice*))
-			    (cons (list cur-player (1+ cur-dice))
-				  (f (cdr lst) (1- n)))
-			    (cons (car lst) (f (cdr lst) n))))))))
-    (board-array (f (coerce board 'list) spare-dice))))
+			(if (and (eq cur-player player)
+				 (< cur-dice *max-dice*))
+			    (f (cdr lst)
+			       (1- n)
+			       (cons (list cur-player (1+ cur-dice)) acc))
+			    (f (cdr lst) n (cons (car lst) acc))))))))
+    (board-array (f (coerce board 'list) spare-dice ()))))
 
 
 ;; print game status
