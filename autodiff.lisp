@@ -1,6 +1,7 @@
 (defpackage #:generic-arithmetic 
-  (:use "COMMON-LISP")
-  (:shadow "+" "-" "*" "/" "exp" "sin" "cos"))
+  (:use :common-lisp)
+  (:shadow "+" "-" "*" "/" exp sin cos tan sqrt)
+  (:export))
 
 (in-package #:generic-arithmetic)
 
@@ -19,11 +20,15 @@
 (defun / (&rest x)
   (reduce 'binary/ (cdr x) :initial-value (car x)))
 
-(defun exp (x) (exp x))
+(defun exp (x) (binaryexp x))
 
-(defun sin (x) (sin x))
+(defun sin (x) (binarysin x))
 
-(defun cos (x) (cos x))
+(defun cos (x) (binarycos x))
+
+(defun tan (x) (binarytan x))
+
+(defun sqrt (x) (binarysqrt x))
 
 
 ;; generic function
@@ -35,11 +40,15 @@
 
 (defgeneric binary/ (a b))
 
-(defgeneric exp (x))
+(defgeneric binaryexp (x))
 
-(defgeneric sin (x))
+(defgeneric binarysin (x))
 
-(defgeneric cos (x))
+(defgeneric binarycos (x))
+
+(defgeneric binarytan (x))
+
+(defgeneric binarysqrt (x))
 
 
 ;; + operator
@@ -120,11 +129,48 @@
    :r (/ (dual-number-r (* a (conj b))) div)
    :d (/ (dual-number-d (* a (conj b))) div)))
 
+
 ;; exp
-(defmethod exp ((x number)) (cl:exp x))
+(defmethod binaryexp ((x number)) (cl:exp x))
 
 (defmethod binaryexp ((x dual-number))
   (* (exp (dual-number-r x)) (make-dual-number :r 1 :d (dual-number-d x))))
+
+
+;; sin
+(defmethod binarysin ((x number)) (cl:sin x))
+
+(defmethod binarysin ((x dual-number))
+  (make-dual-number
+   :r (sin (dual-number-r x))
+   :d (* (cos (dual-number-r x)) (dual-number-d x))))
+
+;; cos
+(defmethod binarycos ((x number)) (cl:cos x))
+
+(defmethod binarycos ((x dual-number))
+  (make-dual-number
+   :r (cos (dual-number-r x))
+   :d (- 0 (* (sin (dual-number-r x)) (dual-number-d x)))))
+
+;; tan
+(defmethod binarytan ((x number)) (cl:tan x))
+
+(defmethod binarytan ((x dual-number))
+  (setf a (expt (cos (dual-number-r x)) 2))
+  (make-dual-number
+   :r (/ (sin (* 2 (dual-number-r x))) 2 a)
+   :d (/ (* (dual-number-d x) (cos (* 2 (dual-number-r x)))) a)))
+
+;; sqrt
+(defmethod binarysqrt ((x number)) (cl:sqrt x))
+
+(defmethod binarysqrt ((x dual-number))
+  (setf a (sqrt (dual-number-r x)))
+  (make-dual-number
+   :r a
+   :d (/ (dual-number-d x) 2 a)))
+
 
 ;; conjugate for dual number
 (defun conj (a)
@@ -142,6 +188,17 @@
 
 (print (+ 1 3 dual 3 dual2 dual 2))
 (print (- 1 3 dual 3 dual2 dual 2))
-(print (* 1 3 dual 3 dual2 dual 2))
+(print (* 1 3 dual 3 dual2 dual 2 pi))
 (print (/ 1 3 dual 3 dual2 dual 2))
-(print (exp 4))
+(print (exp dual))
+(print (sin pi))
+(print (sin (make-dual-number :r pi :d 0)))
+(print (cos pi))
+(print (sqrt 3))
+(print (sqrt dual2))
+(print (tan (make-dual-number :r pi :d 0)))
+(print (tan dual2))
+
+
+;; TODO: tangent test
+;; TODO: export
