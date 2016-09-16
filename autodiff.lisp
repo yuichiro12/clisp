@@ -1,6 +1,6 @@
 (defpackage #:generic-arithmetic 
   (:use :common-lisp)
-  (:shadow "+" "-" "*" "/" exp sin cos tan sqrt)
+  (:shadow "+" "-" "*" "/" ">=" "<=" exp sin cos tan sqrt)
   (:export))
 
 (in-package #:generic-arithmetic)
@@ -19,6 +19,14 @@
 
 (defun / (&rest x)
   (reduce 'binary/ (cdr x) :initial-value (car x)))
+
+(defun > (a b) (binary> a b))
+
+(defun >= (a b) (binary>= a b))
+
+(defun < (a b) (binary> a b))
+
+(defun <= (a b) (binary>= a b))
 
 (defun exp (x) (binaryexp x))
 
@@ -39,6 +47,10 @@
 (defgeneric binary* (a b))
 
 (defgeneric binary/ (a b))
+
+(defgeneric binary>= (a b))
+
+(defgeneric binary<= (a b))
 
 (defgeneric binaryexp (x))
 
@@ -130,6 +142,18 @@
    :d (/ (dual-number-d (* a (conj b))) div)))
 
 
+;; comparison
+(defmethod binary>= ((a number) (b number)) (cl:>= a b))
+
+(defmethod binary>= ((a dual-number) (b dual-number))
+  (>= (dual-number-r a) (dual-number-r b)))
+
+(defmethod binary<= ((a number) (b number)) (cl:<= a b))
+
+(defmethod binary<= ((a dual-number) (b dual-number))
+  (<= (dual-number-r a) (dual-number-r b)))
+
+
 ;; exp
 (defmethod binaryexp ((x number)) (cl:exp x))
 
@@ -183,22 +207,31 @@
 (defun norm (a)
   (sqrt (expt (dual-number-r a) 2)))
 
-(defvar dual (MAKE-DUAL-NUMBER :r 1 :d 6))
-(defvar dual2 (MAKE-DUAL-NUMBER :r 2 :d 3))
+(defvar dual (MAKE-DUAL-NUMBER :r 0 :d 0))
+(defvar dual2 (MAKE-DUAL-NUMBER :r 0 :d 0))
 
-(print (+ 1 3 dual 3 dual2 dual 2))
-(print (- 1 3 dual 3 dual2 dual 2))
-(print (* 1 3 dual 3 dual2 dual 2 pi))
-(print (/ 1 3 dual 3 dual2 dual 2))
-(print (exp dual))
-(print (sin pi))
-(print (sin (make-dual-number :r pi :d 0)))
-(print (cos pi))
-(print (sqrt 3))
-(print (sqrt dual2))
-(print (tan (make-dual-number :r pi :d 0)))
-(print (tan dual2))
+;; (print (mapcar #'+ '(1 3 dual 3 dual2 dual 2)))
+;; (print (- 1 3 dual 3 dual2 dual 2))
+;; (print (* 1 3 dual 3 dual2 dual 2 pi))
+;; (print (/ 1 3 dual 3 dual2 dual 2))
+;; (print (exp dual))
+;; (print (sin pi))
+;; (print (sin (make-dual-number :r pi :d 0)))
+;; (print (cos pi))
+;; (print (sqrt 3))
+;; (print (sqrt dual2))
+;; (print (tan (make-dual-number :r pi :d 0)))
+;; (print (tan dual2))
+;; (print (>= dual dual2))
+;; (print (>= dual2 dual))
+;; (print (<= dual2 dual))
+;; (print (<= dual dual2))
+;; (print (>= (make-dual-number :r 1 :d 6) (make-dual-number :r 2 :d 3)))
+;; (print (> (make-dual-number :r 1 :d 6) (make-dual-number :r 2 :d 3)))
+;; (print (<= (make-dual-number :r 1 :d 6) (make-dual-number :r 2 :d 3)))
+;; (print (< (make-dual-number :r 1 :d 6) (make-dual-number :r 2 :d 3)))
 
 
 ;; TODO: tangent test
 ;; TODO: export
+;; TODO: comparison operator
