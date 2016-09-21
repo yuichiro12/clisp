@@ -1,10 +1,9 @@
 (defpackage #:generic-arithmetic 
   (:use :common-lisp)
-  (:shadow "+" "-" "*" "/" ">=" "<=" exp sin cos tan sqrt)
+  (:shadow "+" "-" "*" "/" exp sin cos tan sqrt)
   (:export))
 
 (in-package #:generic-arithmetic)
-
 
 (defstruct dual-number (r 0) (d 0))
 
@@ -19,14 +18,6 @@
 
 (defun / (&rest x)
   (reduce 'binary/ (cdr x) :initial-value (car x)))
-
-(defun > (a b) (binary> a b))
-
-(defun >= (a b) (binary>= a b))
-
-(defun < (a b) (binary> a b))
-
-(defun <= (a b) (binary>= a b))
 
 (defun exp (x) (binaryexp x))
 
@@ -47,10 +38,6 @@
 (defgeneric binary* (a b))
 
 (defgeneric binary/ (a b))
-
-(defgeneric binary>= (a b))
-
-(defgeneric binary<= (a b))
 
 (defgeneric binaryexp (x))
 
@@ -143,15 +130,15 @@
 
 
 ;; comparison
-(defmethod binary>= ((a number) (b number)) (cl:>= a b))
+;; (defmethod binary>= ((a number) (b number)) (cl:>= a b))
 
-(defmethod binary>= ((a dual-number) (b dual-number))
-  (>= (dual-number-r a) (dual-number-r b)))
+;; (defmethod binary>= ((a dual-number) (b dual-number))
+;;   (>= (dual-number-r a) (dual-number-r b)))
 
-(defmethod binary<= ((a number) (b number)) (cl:<= a b))
+;; (defmethod binary<= ((a number) (b number)) (cl:<= a b))
 
-(defmethod binary<= ((a dual-number) (b dual-number))
-  (<= (dual-number-r a) (dual-number-r b)))
+;; (defmethod binary<= ((a dual-number) (b dual-number))
+;;   (<= (dual-number-r a) (dual-number-r b)))
 
 
 ;; exp
@@ -207,19 +194,35 @@
 (defun norm (a)
   (sqrt (expt (dual-number-r a) 2)))
 
-(defvar dual (MAKE-DUAL-NUMBER :r 0 :d 0))
-(defvar dual2 (MAKE-DUAL-NUMBER :r 0 :d 0))
 
-;; (print (mapcar #'+ '(1 3 dual 3 dual2 dual 2)))
-;; (print (- 1 3 dual 3 dual2 dual 2))
-;; (print (* 1 3 dual 3 dual2 dual 2 pi))
-;; (print (/ 1 3 dual 3 dual2 dual 2))
-;; (print (exp dual))
-;; (print (sin pi))
-;; (print (sin (make-dual-number :r pi :d 0)))
-;; (print (cos pi))
-;; (print (sqrt 3))
-;; (print (sqrt dual2))
+
+;; return the differentiation
+(defun diff (f a)
+  (setf x (make-dual-number :r a :d 1))
+  (dual-number-d `(,f x)))
+
+(defun func (x) (+ (* (expt x) x) (cos x)))
+
+;; (setf dual (make-dual-number r: 2 d: 6))
+
+;; (print (func dual))
+
+
+
+(defvar dual (make-dual-number :r 1 :d 6))
+(defvar  dual2 (make-dual-number :r 2 :d 3))
+
+(print (- 1 3 dual 3 dual2 dual 2))
+(print (* 1 3 dual 3 dual2 dual 2 pi))
+(print (/ 1 3 dual 3 dual2 dual 2))
+(print (exp dual))
+(print (sin pi))
+(print (sin (make-dual-number :r pi :d 0)))
+(print (cos pi))
+(print (sqrt 3))
+(print (sqrt dual2))
+
+
 ;; (print (tan (make-dual-number :r pi :d 0)))
 ;; (print (tan dual2))
 ;; (print (>= dual dual2))
@@ -235,3 +238,6 @@
 ;; TODO: tangent test
 ;; TODO: export
 ;; TODO: comparison operator
+
+(funcall #'func dual)
+
